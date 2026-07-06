@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>PaddleOCR 微信拍一拍独立测试页｜2x+2080稳定版</title>
+<style>
+:root{--bg:#eef6ff;--card:#fff;--text:#24384d;--muted:#6b7c8f;--line:#dfe8f2;--blue:#2f679d;--cyan:#0a9bb3;--green:#16a678;--red:#e84a4a;--shadow:0 12px 32px rgba(31,58,87,.12);--radius:18px}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eaf6ff,#f8fbff);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;color:var(--text);line-height:1.55}.wrap{max-width:1180px;margin:0 auto;padding:22px}.hero{background:linear-gradient(135deg,#3a70ad,#1f3b55);color:#fff;border-radius:22px;padding:24px 28px;box-shadow:var(--shadow);display:flex;justify-content:space-between;gap:16px;align-items:center}.hero h1{margin:0;font-size:28px;letter-spacing:.5px}.hero p{margin:5px 0 0;color:rgba(255,255,255,.75)}.badge{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);padding:8px 12px;border-radius:999px;font-size:13px}.grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;margin-top:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.card h2{font-size:19px;margin:0 0 14px;display:flex;align-items:center;gap:8px}.hint{font-size:13px;color:var(--muted);margin:8px 0}.upload{border:2px dashed #c7d7e8;border-radius:16px;background:#f8fbff;padding:18px;text-align:center}.upload input{display:none}.bigbtn,.btn{border:0;border-radius:14px;font-weight:800;cursor:pointer;transition:.18s;display:inline-flex;align-items:center;justify-content:center;gap:8px}.bigbtn{min-height:48px;padding:0 22px;font-size:16px;color:#fff;background:linear-gradient(135deg,#0ba9bf,#087d94);box-shadow:0 8px 18px rgba(8,125,148,.22)}.bigbtn:disabled,.btn:disabled{opacity:.48;cursor:not-allowed}.btn{min-height:38px;padding:0 14px;font-size:14px;color:#fff;background:var(--blue)}.btn.secondary{background:#eef4fa;color:#314a63;border:1px solid #dce7f2}.btn.red{background:var(--red)}.btn.green{background:var(--green)}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.opt{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#fbfdff;font-size:14px}.opt input,.opt select{vertical-align:middle}textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:14px;background:#fbfdff;padding:12px;font-size:14px;color:var(--text);resize:vertical}pre{white-space:pre-wrap;word-break:break-word;background:#f7faff;border:1px solid var(--line);border-radius:14px;padding:12px;min-height:120px;margin:0;font-size:13px}.status{padding:11px 13px;background:#f7faff;border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:14px;margin:12px 0}.status strong{color:var(--text)}.preview{max-width:100%;max-height:420px;border-radius:14px;border:1px solid var(--line);display:none;margin-top:12px}.names{display:flex;flex-wrap:wrap;gap:8px;min-height:48px}.chip{background:#eff8fb;border:1px solid #cce8ef;color:#14556b;border-radius:999px;padding:7px 10px;font-size:14px}.chip.bad{background:#fff5f5;border-color:#ffd6d6;color:#a13d3d}.small{font-size:12px;color:var(--muted)}.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}.meter{height:8px;background:#e8eef6;border-radius:999px;overflow:hidden;margin-top:8px}.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#0ba9bf,#2f679d);transition:.25s}.logline{border-bottom:1px dashed #e6edf5;padding:6px 0;font-size:13px}.footer{margin:18px 0 4px;text-align:center;color:var(--muted);font-size:12px}@media(max-width:860px){.wrap{padding:12px}.hero{border-radius:18px;padding:20px;display:block}.hero h1{font-size:23px}.badge{display:inline-block;margin-top:10px}.grid{grid-template-columns:1fr}.split,.opts{grid-template-columns:1fr}.card{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div><h1>微信拍一拍 OCR 独立测试页｜2x+2080</h1><p>上传微信截图 → PaddleOCR.js 识别 → 拍一拍专用清洗 → 提取被拍昵称</p></div>
+    <span class="badge">测试页，不接正式码单器</span>
+  </section>
+
+  <div class="grid">
+    <main class="card">
+      <h2>① 上传截图并识别</h2>
+      <div class="upload" id="dropZone">
+        <input id="fileInput" type="file" accept="image/*" multiple />
+        <button class="bigbtn" id="pickBtn">📷 选择微信截图</button>
+        <p class="hint">建议先用你发来的真实“拍一拍”截图测试。首次加载 OCR 模型会比较慢。</p>
+        <img id="preview" class="preview" alt="预览" />
+      </div>
+
+      <div class="opts">
+        <div class="opt"><strong>固定识别组合：</strong> 2x 放大 + 2080 检测边长</div>
+        <div class="opt"><strong>模型策略：</strong> 初始化一次，后续复用模型</div>
+        <label class="opt"><input id="stripEmoji" type="checkbox" checked /> 提取昵称时去掉 emoji</label>
+        <label class="opt"><input id="normalizeBracket" type="checkbox" checked /> 中文括号统一成半角括号</label>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <button class="bigbtn" id="runBtn" disabled>🚀 开始 PaddleOCR 识别</button>
+        <button class="btn secondary" id="clearBtn">清空</button>
+        <a class="btn secondary" id="forgetLink" href="?reset=1" style="text-decoration:none">忘记页面状态</a>
+      </div>
+
+      <div class="status" id="status">状态：等待上传图片。</div>
+      <div class="meter"><i id="meter"></i></div>
+
+      <h2 style="margin-top:18px">② 原始 OCR 文本 / 手动粘贴测试</h2>
+      <textarea id="rawText" placeholder="OCR 原文会显示在这里；也可以直接粘贴微信提取文字/其他 OCR 结果，再点击下方提取。"></textarea>
+      <div class="row" style="margin:10px 0 14px">
+        <button class="btn green" id="parseBtn">只运行拍一拍提取</button>
+        <button class="btn secondary" id="copyRawBtn">复制 OCR 原文</button>
+      </div>
+
+      <div class="split">
+        <div><h2>③ 清洗后文本</h2><pre id="cleanText"></pre></div>
+        <div><h2>④ OCR 行明细</h2><pre id="lineText"></pre></div>
+      </div>
+    </main>
+
+    <aside class="card">
+      <h2>提取结果</h2>
+      <p class="hint">只提取“拍了拍”后面的被拍对象；保留 See.、点号、括号标签，emoji 默认不强制保留。</p>
+      <div class="names" id="names"></div>
+      <div class="row" style="margin:14px 0">
+        <button class="btn" id="copyNamesBtn">复制名单</button>
+        <button class="btn secondary" id="copyLinesBtn">复制拍一拍行</button>
+      </div>
+      <h2>拍一拍命中行</h2>
+      <pre id="hitText"></pre>
+      <h2 style="margin-top:14px">测试建议</h2>
+      <div class="small">
+        1. 当前固定为 2x + 2080，不提供其他组合。<br>
+        2. 选择新图片会清空上一次识别工作区，但不会清空已初始化的 OCR 模型。<br>
+        3. 如果页面状态异常，可点“忘记页面状态”；它只清临时页面状态，不删除模型缓存。<br>
+        4. 正式接入前，以“提取出的被拍昵称准确率”为准，不以整段 OCR 文字漂亮程度为准。
+      </div>
+    </aside>
+  </div>
+  <div class="footer">PaddleOCR.js 测试页：仅用于验证可行性，不会写入任何记忆库。</div>
+</div>
+
+<script type="module">
+const OCR_CDN = 'https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/+esm';
+const ORT_WASM = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/';
+const FIXED_SCALE = 2;
+const FIXED_LIMIT = 2080;
+const $ = id => document.getElementById(id);
+const state = { file:null, previewUrl:'', ocr:null, initPromise:null, busy:false, runCount:0, names:[], hitLines:[], lastLines:[] };
+
+function setStatus(msg, pct){
+  $('status').innerHTML = msg;
+  if (typeof pct === 'number') $('meter').style.width = Math.max(0, Math.min(100, pct)) + '%';
+}
+function clearPreview(){
+  if (state.previewUrl) URL.revokeObjectURL(state.previewUrl);
+  state.previewUrl = '';
+  $('preview').removeAttribute('src');
+  $('preview').style.display = 'none';
+}
+function clearResultArea(){
+  state.names = [];
+  state.hitLines = [];
+  state.lastLines = [];
+  $('rawText').value = '';
+  $('cleanText').textContent = '';
+  $('lineText').textContent = '';
+  $('hitText').textContent = '';
+  $('names').innerHTML = '';
+}
+function resetWorkspace(message=''){
+  state.file = null;
+  $('fileInput').value = '';
+  $('runBtn').disabled = true;
+  clearPreview();
+  clearResultArea();
+  if (message) setStatus(message, 0);
+}
+function rebuildWorkspaceForNewImage(file, sourceLabel='已选择图片'){
+  if (!file || state.busy) return;
+  clearResultArea();
+  clearPreview();
+  state.file = file;
+  state.previewUrl = URL.createObjectURL(file);
+  $('preview').src = state.previewUrl;
+  $('preview').style.display = 'block';
+  $('fileInput').value = '';
+  $('runBtn').disabled = false;
+  setStatus(`状态：${sourceLabel} <strong>${file.name || '微信截图'}</strong>；已重建识别工作区，OCR 模型会继续复用。`, 0);
+}
+function loadImageFromFile(file){
+  return new Promise((resolve, reject)=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = err => { URL.revokeObjectURL(url); reject(err); };
+    img.src = url;
+  });
+}
+async function fileToCanvasBlob(file, scale=FIXED_SCALE){
+  let source = null, canvas = null;
+  try{
+    try{
+      if ('createImageBitmap' in window) source = await createImageBitmap(file);
+    }catch{}
+    if (!source) source = await loadImageFromFile(file);
+    const w = Math.max(1, Math.round(source.width * scale));
+    const h = Math.max(1, Math.round(source.height * scale));
+    canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d', { willReadFrequently:false });
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(source, 0, 0, w, h);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) throw new Error('图片预处理失败：Canvas 未生成图片。');
+    return blob;
+  }finally{
+    try{ if (source && source.close) source.close(); }catch{}
+    try{ if (canvas){ const ctx=canvas.getContext('2d'); ctx && ctx.clearRect(0,0,canvas.width,canvas.height); canvas.width=1; canvas.height=1; } }catch{}
+  }
+}
+
+async function ensureOcr(){
+  if (state.ocr) return state.ocr;
+  if (state.initPromise) return state.initPromise;
+  state.initPromise = (async()=>{
+    setStatus('状态：正在加载 PaddleOCR.js SDK 与模型，首次可能需要较久……', 12);
+    const { PaddleOCR } = await import(OCR_CDN);
+    setStatus('状态：SDK 已加载，正在初始化 PP-OCRv5 中文模型……', 28);
+    const ocr = await PaddleOCR.create({
+      lang: 'ch',
+      ocrVersion: 'PP-OCRv5',
+      ensureServedFromHttp: () => {},
+      ortOptions: { backend: 'wasm', wasmPaths: ORT_WASM, numThreads: 1, simd: true }
+    });
+    state.ocr = ocr;
+    setStatus('状态：OCR 模型初始化完成。', 42);
+    return ocr;
+  })();
+  try{
+    return await state.initPromise;
+  }catch(err){
+    state.ocr = null;
+    state.initPromise = null;
+    throw err;
+  }
+}
+
+function normalizeText(text){
+  return String(text || '')
+    .replace(/[“”＂]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/拍了\s*拍/g, '拍了拍')
+    .replace(/拍\s*了\s*拍/g, '拍了拍')
+    .replace(/See\s*[.。．,，]\s*/gi, 'See.')
+    .replace(/S\s*e\s*e\s*[.。．,，]\s*/gi, 'See.')
+    .replace(/\bSeo\s*/g, 'See.')
+    .replace(/\s+([()（）])/g, '$1')
+    .replace(/([()（）])\s+/g, '$1')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+}
+function stripEmojiText(s){
+  return String(s || '').replace(/[\uFE0F\u200D]/g, '').replace(/[\p{Extended_Pictographic}\p{Emoji_Presentation}]/gu, '');
+}
+function cleanName(s){
+  let out = String(s || '').trim();
+  out = out.replace(/^["'“”‘’＂\s]+|["'“”‘’＂\s]+$/g, '');
+  out = out.replace(/^(拍了拍|我拍了拍|自己)+/g, '').trim();
+  if ($('normalizeBracket').checked) out = out.replace(/（/g, '(').replace(/）/g, ')');
+  if ($('stripEmoji').checked) out = stripEmojiText(out);
+  out = out.replace(/[\s\t]+/g, ' ').replace(/\s*([()])\s*/g, '$1').trim();
+  out = out.replace(/[，,。；;：:\s]+$/g, '').trim();
+  return out;
+}
+function extractTargetFromLine(rawLine){
+  const line = normalizeText(rawLine);
+  if (!/拍了拍/.test(line)) return null;
+  const after = line.split(/拍了拍/).slice(1).join('拍了拍').trim();
+  if (!after || /^自己/.test(after)) return null;
+  const quoted = after.match(/^[\s"']*([^"']{1,80})["']/) || after.match(/["']([^"']{1,80})["']?/);
+  let target = quoted ? quoted[1] : after;
+  target = target.split(/\s+(?:说|并说|的|把|发现|投喂|在吗|宝宝|希望|早日|空空|头|脑瓜|屁股|小尾巴|小脸|q\()/)[0];
+  target = target.replace(/\s+(?:说|并说|的|把).*$/,'');
+  const cleaned = cleanName(target);
+  if (!cleaned || cleaned.length < 1 || cleaned === '自己') return null;
+  return cleaned;
+}
+function parsePaipaiText(text){
+  const normalized = normalizeText(text);
+  const lines = normalized.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const hitLines = lines.filter(l => /拍了拍/.test(l));
+  const ordered = [];
+  for (const l of hitLines){
+    const name = extractTargetFromLine(l);
+    if (name) ordered.push(name);
+  }
+  const unique = [];
+  const seen = new Set();
+  for (const n of ordered){ if (!seen.has(n)){ seen.add(n); unique.push(n); } }
+  return { normalized, lines, hitLines, ordered, unique };
+}
+function renderParse(){
+  const parsed = parsePaipaiText($('rawText').value);
+  state.names = parsed.unique; state.hitLines = parsed.hitLines;
+  $('cleanText').textContent = parsed.normalized;
+  $('hitText').textContent = parsed.hitLines.join('\n');
+  const box = $('names'); box.innerHTML = '';
+  if (!parsed.unique.length) box.innerHTML = '<span class="chip bad">未提取到拍一拍昵称</span>';
+  parsed.unique.forEach(n => { const s=document.createElement('span'); s.className='chip'; s.textContent=n; box.appendChild(s); });
+  return parsed;
+}
+function getOcrItems(output){
+  const root = Array.isArray(output) ? output[0] : output;
+  if (!root) return [];
+  if (Array.isArray(root.items)) return root.items;
+  if (Array.isArray(root)) return root;
+  if (Array.isArray(root.ocrResult)) return root.ocrResult;
+  if (root.result && Array.isArray(root.result.items)) return root.result.items;
+  return [];
+}
+function sortOcrItems(items){
+  return (items || []).slice().sort((a,b)=>{
+    const ay = a.poly ? Math.min(...a.poly.map(p=>p[1])) : (a.box ? a.box[1] : 0);
+    const by = b.poly ? Math.min(...b.poly.map(p=>p[1])) : (b.box ? b.box[1] : 0);
+    if (Math.abs(ay-by)>12) return ay-by;
+    const ax = a.poly ? Math.min(...a.poly.map(p=>p[0])) : (a.box ? a.box[0] : 0);
+    const bx = b.poly ? Math.min(...b.poly.map(p=>p[0])) : (b.box ? b.box[0] : 0);
+    return ax-bx;
+  });
+}
+async function copy(text){
+  try{ await navigator.clipboard.writeText(text); setStatus('状态：已复制。', 100); }
+  catch{ setStatus('状态：复制失败，可手动选择文本复制。', 100); }
+}
+async function forgetThisPageStorage(){
+  try{ localStorage.clear(); }catch{}
+  try{ sessionStorage.clear(); }catch{}
+  try{
+    document.cookie.split(';').forEach(c=>{
+      const name = c.split('=')[0].trim();
+      if (!name) return;
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${location.pathname}`;
+    });
+  }catch{}
+}
+function initApp(){
+  if (new URLSearchParams(location.search).has('fresh')) setStatus('状态：页面状态已清理；模型缓存已保留。请重新选择图片。', 0);
+  $('pickBtn').onclick = () => $('fileInput').click();
+  $('forgetLink').onclick = async e => {
+    e.preventDefault();
+    if (state.busy) return;
+    setStatus('状态：正在清理页面临时状态并重开；模型缓存会保留……', 6);
+    await forgetThisPageStorage();
+    location.replace(location.origin + location.pathname + '?fresh=' + Date.now());
+  };
+  $('fileInput').onchange = e => rebuildWorkspaceForNewImage(e.target.files && e.target.files[0], '已选择图片');
+  ['dragenter','dragover'].forEach(ev => $('dropZone').addEventListener(ev, e => { e.preventDefault(); $('dropZone').style.borderColor = '#0a9bb3'; }));
+  ['dragleave','drop'].forEach(ev => $('dropZone').addEventListener(ev, e => { e.preventDefault(); $('dropZone').style.borderColor = '#c7d7e8'; }));
+  $('dropZone').addEventListener('drop', e => rebuildWorkspaceForNewImage(e.dataTransfer.files && e.dataTransfer.files[0], '已拖入图片'));
+  $('runBtn').onclick = async () => {
+    if (!state.file || state.busy) return;
+    const activeFile = state.file;
+    state.busy = true;
+    $('runBtn').disabled = true;
+    let blob = null;
+    try{
+      clearResultArea();
+      const ocr = await ensureOcr();
+      setStatus('状态：正在预处理图片（固定 2x + 2080）……', 48);
+      blob = await fileToCanvasBlob(activeFile, FIXED_SCALE);
+      await new Promise(r => setTimeout(r, 30));
+      setStatus('状态：正在 OCR 识别，请等待，请勿重复点击……', 58);
+      const t0 = performance.now();
+      const output = await ocr.predict(blob, { textDetLimitSideLen: FIXED_LIMIT, textRecScoreThresh: 0.1 });
+      const items = sortOcrItems(getOcrItems(output));
+      if (!items.length) throw new Error('OCR 返回为空；请换一张截图或刷新后重试。');
+      const raw = items.map(x => x.text || x.label || '').filter(Boolean).join('\n');
+      state.lastLines = items;
+      $('rawText').value = raw;
+      $('lineText').textContent = items.map((x,i)=>`${String(i+1).padStart(2,'0')}. ${x.text || x.label || ''}  [${typeof x.score === 'number' ? x.score.toFixed(3) : (x.score ?? '')}]`).join('\n');
+      const parsed = renderParse();
+      state.runCount += 1;
+      state.file = null;
+      $('fileInput').value = '';
+      setStatus(`状态：识别完成，用时 <strong>${Math.round(performance.now()-t0)}ms</strong>；OCR 行数 <strong>${items.length}</strong>；拍一拍命中 <strong>${parsed.hitLines.length}</strong>；提取昵称 <strong>${parsed.unique.length}</strong>。请选择下一张继续测试，模型不会重新初始化。`, 100);
+    }catch(err){
+      console.error(err);
+      setStatus(`状态：识别失败：<strong>${String(err && (err.message || err)).slice(0,260)}</strong>`, 100);
+    }finally{
+      blob = null;
+      state.busy = false;
+      $('runBtn').disabled = !state.file;
+    }
+  };
+  $('parseBtn').onclick = renderParse;
+  $('clearBtn').onclick = () => { if (!state.busy) resetWorkspace('状态：已清空，等待上传图片。'); };
+  $('copyRawBtn').onclick = () => copy($('rawText').value);
+  $('copyNamesBtn').onclick = () => copy(state.names.join('\n'));
+  $('copyLinesBtn').onclick = () => copy(state.hitLines.join('\n'));
+  $('stripEmoji').onchange = renderParse;
+  $('normalizeBracket').onchange = renderParse;
+  window.addEventListener('pagehide', () => clearPreview());
+}
+
+if (new URLSearchParams(location.search).has('reset')) {
+  setStatus('状态：正在清理页面临时状态并重开；模型缓存会保留……', 6);
+  forgetThisPageStorage().then(() => location.replace(location.origin + location.pathname + '?fresh=' + Date.now()));
+} else {
+  initApp();
+}
+</script>
+</body>
+</html>
